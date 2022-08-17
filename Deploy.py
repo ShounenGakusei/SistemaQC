@@ -7,6 +7,7 @@ from Tests.unit_tests import TestParametros
 from Utils.DefaultParams import getDefaultParams
 from Utils.Model import Model
 from Utils.ObtenerAuxiliares import getElevation
+from Utils.ObtenerImagen import get_dir_size, deleteFilesDir
 from Utils.PredecirClase import evaluarDato, usarModelos
 import tensorflow as tf
 import json
@@ -32,7 +33,7 @@ try:
     params['margen'] = 24
     params['dibujar'] = False
     params['canalDibujar'] = '13'
-    params['sizeMax'] = 2000000
+    params['sizeMax'] = 300000000
     params["hard_save"] = False
 
 except Exception:
@@ -71,6 +72,13 @@ def get():
     params['fecha'] = fecha
     params['coordlon'] = coordlon
     params['coordLat'] = coordLat
+
+    # Verificamos el tamaño de la carpeta
+    sizeDir = get_dir_size(path=f'{path_base}/Imagenes/')
+    print(f'Tamaño en dir Imagenes: {sizeDir}')
+    if sizeDir > params['sizeMax']:
+        print('Procediendo a vaciar dir Imagenes...')
+        deleteFilesDir(path=f'{path_base}/Imagenes/')
 
 
     imagenMatriz, errors = evaluarDato(path_base, params, modelosBase)
