@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5de53cc8-fd0d-4156-a548-2e9575dc4a6a" name="Default Changelist" comment="beforeDeploy">
-      <change beforePath="$PROJECT_DIR$/.idea/SistemaQC.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SistemaQC.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Deploy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Deploy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tests/unit_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/unit_tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +82,13 @@
       <updated>1660701467974</updated>
       <workItem from="1660701469226" duration="4508000" />
       <workItem from="1660768796940" duration="2780000" />
-      <workItem from="1660832678804" duration="832000" />
+      <workItem from="1660832678804" duration="2042000" />
+      <workItem from="1660834751533" duration="59000" />
+      <workItem from="1660834818682" duration="299000" />
+      <workItem from="1660835144730" duration="68000" />
+      <workItem from="1660835222064" duration="662000" />
+      <workItem from="1660835892469" duration="68000" />
+      <workItem from="1660835967965" duration="466000" />
     </task>
     <task id="LOCAL-00001" summary="beforeDeploy">
       <created>1660774605833</created>
@@ -127,6 +134,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="beforeDeploy" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/SistemaQC$SistemaQC.coverage" NAME="SistemaQC Coverage Results" MODIFIED="1660833208525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/SistemaQC$SistemaQC.coverage" NAME="SistemaQC Coverage Results" MODIFIED="1660836120330" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

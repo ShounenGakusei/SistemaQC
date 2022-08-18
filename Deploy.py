@@ -3,7 +3,7 @@ import traceback
 from flask import Flask, request
 #from flask_restful import Api
 
-from Tests.unit_tests import TestParametros
+# from Tests.unit_tests import TestParametros
 from Utils.DefaultParams import getDefaultParams
 from Utils.Model import Model
 from Utils.ObtenerAuxiliares import getElevation
@@ -47,12 +47,13 @@ with tf.device("cpu:0"):
     modelosBase.iniciarModelos()
 blocked = False
 
+"""
 @app.route("/unit_tests")
 def unitTest():
     nuevoTest = TestParametros()
     resultados = nuevoTest.unitTests(path_base)
     return resultados
-
+"""
 
 
 @app.route("/predecir")
