@@ -74,6 +74,7 @@ def get():
     params['coordlon'] = coordlon
     params['coordLat'] = coordLat
 
+    deleteFilesDir(path=f'{path_base}/Temp/')
     # Verificamos el tamaño de la carpeta
     sizeDir = get_dir_size(path=f'{path_base}/Imagenes/')
     print(f'Tamaño en dir Imagenes: {sizeDir}')
