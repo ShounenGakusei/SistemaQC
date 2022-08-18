@@ -1,7 +1,7 @@
 import traceback
 
 from flask import Flask, request
-from flask_restful import Api
+#from flask_restful import Api
 
 from Tests.unit_tests import TestParametros
 from Utils.DefaultParams import getDefaultParams
@@ -12,7 +12,7 @@ from Utils.PredecirClase import evaluarDato, usarModelos
 import tensorflow as tf
 import json
 app = Flask(__name__)
-api = Api(app)
+#api = Api(app)
 
 
 path_base = app.root_path
@@ -88,7 +88,7 @@ def get():
     malos = conformes = nc = 0
     if errors['valido']:
         predicciones, nc, malos, conformes, errorModel = usarModelos(imagenMatriz, params['dato'], modelosBase, extras=extras)
-
+        print(predicciones)
 
         if errorModel:
             errors['modelo'] = errorModel
@@ -104,10 +104,10 @@ def get():
 
     elif conformes > (malos+nc):
         pred_text = 'C'
-        mensaje = f'Precision: {conformes/(nc+conformes+malos)}'#Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
+        mensaje = f'Precision: {predicciones[0]}'#{conformes/(nc+conformes+malos)}'#Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
     elif malos > (conformes+nc):
         pred_text = 'M'
-        mensaje = f'Precision: {malos/(nc+conformes+malos)}'#f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
+        mensaje = f'Precision: {predicciones[0]}'#{malos/(nc+conformes+malos)}'#f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
     else:
         pred_text = 'NC'
         mensaje = f'Umbral: {params["umbral"]}'#f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
