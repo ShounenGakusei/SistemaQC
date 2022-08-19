@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5de53cc8-fd0d-4156-a548-2e9575dc4a6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Deploy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Deploy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utils/DescargarImagen.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/DescargarImagen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utils/PredecirClase.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/PredecirClase.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dlImages/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +86,7 @@
       <workItem from="1660835222064" duration="662000" />
       <workItem from="1660835892469" duration="68000" />
       <workItem from="1660835967965" duration="1158000" />
-      <workItem from="1660866138930" duration="1628000" />
+      <workItem from="1660866138930" duration="1769000" />
     </task>
     <task id="LOCAL-00001" summary="beforeDeploy">
       <created>1660774605833</created>
@@ -126,7 +123,14 @@
       <option name="project" value="LOCAL" />
       <updated>1660867224597</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="beforeDeploy">
+      <created>1660867793872</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1660867793872</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -149,6 +153,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="beforeDeploy" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/SistemaQC$SistemaQC.coverage" NAME="SistemaQC Coverage Results" MODIFIED="1660867746617" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/SistemaQC$SistemaQC.coverage" NAME="SistemaQC Coverage Results" MODIFIED="1660867769719" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
