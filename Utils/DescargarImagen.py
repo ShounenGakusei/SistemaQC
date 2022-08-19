@@ -134,7 +134,7 @@ def downloadImageGOES(path_base, p):
     for c in p['canales']:
         filesT = GOES.download('goes16', 'ABI-L2-CMIPF',
                                DateTimeIni=fechaIni, DateTimeFin=fechaFin,
-                               channel=[c], rename_fmt='%Y%m%d%H%M%S', path_out=f'{path_base}/Temp/')
+                               channel=[c], rename_fmt='%Y%m%d%H%M%S', path_out=f'{path_base}/dlImages/')
 
         if len(filesT) < len(p['tiempos']):
             errors.append(f'No se pudo encontrar suficientes imagenes para el canal {c}')

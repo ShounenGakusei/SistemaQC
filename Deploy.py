@@ -77,7 +77,7 @@ def get():
     params['coordlon'] = coordlon
     params['coordLat'] = coordLat
 
-    deleteFilesDir(path=f'{path_base}/Temp/')
+    deleteFilesDir(path=f'{path_base}/dlImages/')
     # Verificamos el tamaño de la carpeta
     sizeDir = get_dir_size(path=f'{path_base}/Imagenes/')
     print(f'Tamaño en dir Imagenes: {sizeDir}')
@@ -127,5 +127,5 @@ def get():
 
     return output
 
-#if __name__ == '__main__':
-#    app.run(debug=False, port=params['port'], threaded=False,host='0.0.0.0')
+if __name__ == '__main__':
+    app.run(debug=False, port=params['port'], threaded=False,host='0.0.0.0')

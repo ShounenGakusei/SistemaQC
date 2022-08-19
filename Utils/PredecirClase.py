@@ -18,8 +18,8 @@ def evaluarDato(path_base, params, modelo):
         print('Sucedio error al comprobar datos')
         return 0, errors
 
-    # Borramos los archivos de la carpeta Temp (temporal)
-    folder = f'{path_base}/Temp'
+    # Borramos los archivos de la carpeta dlImages (temporal)
+    folder = f'{path_base}/dlImages'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         try:
