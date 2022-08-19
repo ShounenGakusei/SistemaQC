@@ -55,6 +55,9 @@ def unitTest():
     return resultados
 """
 
+@app.route("/")
+def getHome():
+    return {'Pagina Inicial':'LISTO'}
 
 @app.route("/predecir")
 def get():
@@ -124,5 +127,5 @@ def get():
 
     return output
 
-if __name__ == '__main__':
-    app.run(debug=False, port=params['port'], threaded=False)
+#if __name__ == '__main__':
+#    app.run(debug=False, port=params['port'], threaded=False,host='0.0.0.0')
