@@ -1,8 +1,33 @@
 import requests
 import urllib
 import traceback
+import pandas as pd
 
-def getElevation(lon,lat, errors):
+def getAuxiliarParams(path_base,lon,lat, extras, errors):
+
+    stations = pd.read_csv(f'{path_base}/stations_data.csv')
+    try:
+        dfTemp = stations[(abs(stations['LON'] - lon) < 0.001) & ((stations['LAT'] - lat) < 0.001)]
+        if not dfTemp.empty:
+            data = dfTemp.iloc[0]
+        else: # Buscamos el mas cercano
+            dfTemp['difLon'] = abs(dfTemp['LON'] - lon)
+            dfTemp['difLat'] = abs(dfTemp['LAT'] - lat)
+            dfTemp['dif'] = dfTemp['difLon'] + dfTemp['difLat']
+            data = dfTemp.sort_values('dif', ascending=True).iloc[0]
+
+        extras['alt'] = data['ALT']
+        extras['umb1'] = data['Umbral1']
+        print(extras)
+        return True
+
+    except Exception as e:
+        traceback.print_exc()
+        errors['auxVar'] = [f'ERROR AL INTENTAR ENCONTRAR LAS VARIABLES AUXILIARES {str(e)}']
+        return False
+
+
+def getElevation(path_base,lon,lat, errors):
     url = r'https://nationalmap.gov/epqs/pqs.php?'
 
     # define rest query params

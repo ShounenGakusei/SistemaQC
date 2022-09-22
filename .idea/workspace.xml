@@ -3,7 +3,16 @@
   <component name="ChangeListManager">
     <list default="true" id="5de53cc8-fd0d-4156-a548-2e9575dc4a6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Procfile" beforeDir="false" afterPath="$PROJECT_DIR$/Procfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Deploy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Deploy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Imagenes/2022-02-01-07-00.nc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Imagenes/2022-02-02-05-00.nc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Imagenes/2022-02-03-05-00.nc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modelos/Model_35_LSTM_clase_20220623_214548.hdf5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/Model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/ObtenerAuxiliares.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/ObtenerAuxiliares.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/ObtenerImagen.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/ObtenerImagen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dlImages/__init__.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +53,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
@@ -87,7 +97,11 @@
       <workItem from="1660835222064" duration="662000" />
       <workItem from="1660835892469" duration="68000" />
       <workItem from="1660835967965" duration="1158000" />
-      <workItem from="1660866138930" duration="2644000" />
+      <workItem from="1660866138930" duration="4446000" />
+      <workItem from="1660916692703" duration="15000" />
+      <workItem from="1662588981872" duration="7683000" />
+      <workItem from="1662642703518" duration="4113000" />
+      <workItem from="1662675467654" duration="13000" />
     </task>
     <task id="LOCAL-00001" summary="beforeDeploy">
       <created>1660774605833</created>
@@ -161,6 +175,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="beforeDeploy" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/SistemaQC$SistemaQC.coverage" NAME="SistemaQC Coverage Results" MODIFIED="1660867769719" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/SistemaQC$SistemaQC.coverage" NAME="SistemaQC Coverage Results" MODIFIED="1662645212335" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

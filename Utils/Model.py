@@ -70,13 +70,16 @@ class Model():
             for layer in config['layers']:
                 if layer['class_name'] == 'InputLayer':
                     inputLayers.append(layer['name'])
+            #print(inputLayers)
             try:
                 #with tf.device("cpu:0"):
                 prediction = modelo.predict({inputLayers[0]: np.full((1, imagen.shape[0], imagen.shape[1],
                                                                           imagen.shape[2], imagen.shape[3]),
                                                                          imagen),
-                                             inputLayers[1]: np.full((1,), dato),
-                                             inputLayers[2]: np.full((1,), float(extras['alt']))}, verbose=0)
+                                             inputLayers[2]: np.full((1,), dato),
+                                             inputLayers[3]: np.full((1,), float(extras['alt'])),
+                                             inputLayers[1]: np.full((1,), float(extras['umb1']))
+                                             }, verbose=0)
                 predicciones.append(prediction[0,0])
 
             except Exception:

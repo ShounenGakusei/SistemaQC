@@ -38,11 +38,11 @@ def mergeImagesFile(fileName, p):
         x, y = findStationCoords(lons, lats, p['coordLon'], p['coordLat'])
 
         margen = int(p['margen'] / 2)
-        for i in range(len(p['tiempos'])):
+        for i in range(len(p['tiempos'])-1,-1,-1):
             canalImages = []
             for c in p['canales']:
                 cmis = ds.groups[f'{c}-{i}']
-                cmi = cmis.variables['CMI'][:].data.astype(np.float32) / 100.0
+                cmi = cmis.variables['CMI'][:].data.astype(np.uint16)
 
                 if p['dibujar'] and p['canalDibujar'] == c and i == 0:
                     try:
