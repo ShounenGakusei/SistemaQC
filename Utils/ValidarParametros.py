@@ -91,7 +91,7 @@ def comprobarDatos(p):
             errors['valido'] = False
 
         if f > dMax:
-            errors['fecha'].append(f'La fecha debe ser menor a fecha ahora ({dMax})')
+            errors['fecha'].append(f'La fecha debe ser menor a la fecha actual ({dMax})')
             errors['valido'] = False
         """"""
 
