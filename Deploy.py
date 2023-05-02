@@ -39,7 +39,7 @@ try:
     params['margen'] = 24
     params['dibujar'] = False
     params['canalDibujar'] = '13'
-    params['sizeMax'] = 300000000
+    #params['sizeMax'] = 300 # en MB
     params["hard_save"] = False
 
 except Exception:
@@ -62,38 +62,39 @@ def unitTest():
 """
 
 
-def predecirQCPrecipitation(params):
+def predecirQCPrecipitation(params_prediction):
+
     deleteFilesDir(path=f'{path_base}/dlImages/')
     # Verificamos el tamaño de la carpeta
     sizeDir = get_dir_size(path=f'{path_base}/Imagenes/')
     print(f'Tamaño en dir Imagenes: {sizeDir}')
-    if sizeDir > params['sizeMax']:
+    if sizeDir > (float(params_prediction['sizeMax']) * 1024*1024):
         print('Procediendo a vaciar dir Imagenes...')
         deleteFilesDir(path=f'{path_base}/Imagenes/')
 
-    imagenMatriz, errors = evaluarDato(path_base, params, modelosBase)
-    print(errors)
+    imagenMatriz, errors = evaluarDato(path_base, params_prediction, modelosBase)
 
     extras = {}
     # extras['alt'] = getElevation(path_base,params['coordlon'],params['coordLat'], errors)
-    axuiliarValid = getAuxiliarParams(path_base, float(params['coordLon']), float(params['coordLat']), extras, errors)
+    axuiliarValid = getAuxiliarParams(path_base, float(params_prediction['coordLon']), float(params_prediction['coordLat']), extras, errors)
+    extras['umbral'] = params_prediction['umbral']
 
     malos = conformes = nc = 0
     if errors['valido'] and axuiliarValid:
-        predicciones, nc, malos, conformes, errorModel = usarModelos(imagenMatriz, params['dato'], modelosBase,
+        predicciones, nc, malos, conformes, errorModel = usarModelos(imagenMatriz, params_prediction['dato'], modelosBase,
                                                                      extras=extras)
-        print(predicciones)
 
         if errorModel:
             errors['modelo'] = errorModel
             print('Error al leer el modelo')
 
+    errores_output = {}
+    mensaje = ''
     if (malos + conformes + nc) == 0:
         pred_text = 'NC'
-        mensaje = {}
         for k, v in errors.items():
             if v:
-                mensaje[k] = v
+                errores_output[k] = v
 
     elif conformes != 0:
         pred_text = 'C'
@@ -103,12 +104,15 @@ def predecirQCPrecipitation(params):
         mensaje = f'Precision: {(1 - predicciones[0]) * 100:.3f}%'  # {malos/(nc+conformes+malos)}'#f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
     else:
         pred_text = 'NC'
-        mensaje = f'Precision: {(predicciones[0]) * 100:.3f}% - Umbral: {params["umbral"]}'  # f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
+        mensaje = f'Precision: {(predicciones[0]) * 100:.3f}% - Umbral: {params_prediction["umbral"]}'  # f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
 
-    output = {'prediction': pred_text, 'mensaje': mensaje, 'parametros': {'Dato': params['dato'],
-                                                                          'Fecha': params['fecha'],
-                                                                          'Longitud': params['coordLon'],
-                                                                          'Latitud': params['coordLat']}
+    output = {'prediction': pred_text, 'errores': errores_output, 'parametros': {'Dato': params_prediction['dato'],
+                                                                          'Fecha': params_prediction['fecha'],
+                                                                          'Longitud': params_prediction['coordLon'],
+                                                                          'Latitud': params_prediction['coordLat'],
+                                                                          'altitud' : extras['alt'],
+                                                                          'per90' : extras['umb1']},
+              'mensaje' : mensaje, 'valido' : errors['valido'], 'confianza' : round(predicciones[0]*100,2)
               }
 
     return output, imagenMatriz
@@ -116,7 +120,7 @@ def predecirQCPrecipitation(params):
 
 @app.route("/")
 def getHome():
-    return render_template('index.html')
+    return render_template('index.html', params=params)
 
 
 @app.route('/validar-UI-data', methods=['POST'])
@@ -129,6 +133,10 @@ def validarDatosUI():
     err['coordLon'] = data['longitud']
     err['coordLat'] = data['latitud']
 
+
+    err['umbral'] = data['umbral']
+    err['sizeMax'] = data['sizeMax']
+
     err = comprobarDatos(err)
     if err['valido']:
         return jsonify({'success': True, 'prediccion': 85.5})
@@ -138,20 +146,38 @@ def validarDatosUI():
 
 @app.route('/predecir-UI-data')
 def predecirDatosUI():
-    params['dato'] = request.args.get('dato', type=str)
-    params['fecha'] = request.args.get('fecha', type=str) + '-00'
-    params['coordLon'] = request.args.get('lon', type=str)
-    params['coordLat'] = request.args.get('lat', type=str)
+    global params
+    p = params.copy()
+
+    p['dato'] = request.args.get('dato', type=str)
+    p['fecha'] = request.args.get('fecha', type=str) + '-00'
+    p['coordLon'] = request.args.get('lon', type=str)
+    p['coordLat'] = request.args.get('lat', type=str)
+
+    p['umbral'] = request.args.get('umbral', type=str)
+    p['sizeMax'] = request.args.get('sizeMax', type=str)
 
 
-    output, imagenArr = predecirQCPrecipitation(params)
-    imagenArr = np.transpose(imagenArr, (0, 3, 1, 2))
+    output, imagenArr = predecirQCPrecipitation(p)
 
-    fig = px.imshow(imagenArr, animation_frame=0, facet_col=1, binary_string=True, labels={'facet_col': 'CANAL'})
-    fig.update_layout(title='Imagenes satelitales (C13 - C07 - C08)', height=600)
+    plot_div = None
 
-    plot_div = fig.to_html(full_html=False)
-    return render_template('prediccion-resumen.html', plot_div=plot_div)
+    if output['valido']:
+        if type(imagenArr) == np.ndarray:
+            imagenArr = np.transpose(imagenArr, (0, 3, 1, 2))
+
+
+
+        fig = px.imshow(imagenArr, animation_frame=0, facet_col=1, binary_string=True, labels={'facet_col': 'CANAL'})
+        #fig.update_layout(title='Imagenes satelitales (C13 - C07 - C08)', height=600)
+
+        plot_div = fig.to_html(full_html=False)
+
+
+    colores = {'NC' : 'grey', 'C': 'green' , 'M': 'yellow'}
+    if output['valido']:
+        output['color'] = colores[output['prediction']]
+    return render_template('prediccion-resumen.html', plot_div=plot_div , output=output)
 
 
 @app.route("/predecir")
@@ -161,18 +187,26 @@ def get():
     coordlon = request.args.get('lon', default='-80.39788', type=str)
     coordLat = request.args.get('lat', default='-4.48047', type=str)
 
+    umbral = request.args.get('umbral', default='0.51', type=str)
+    sizeMax = request.args.get('sizeMax', default='300', type=str)
+
     if len(fecha) == 13:
         fecha = fecha + '-00'
 
     print(f'Nueva peticion: {dato}', coordlon, coordLat)
 
-    params['dato'] = dato
-    params['fecha'] = fecha
-    params['coordLon'] = coordlon
-    params['coordLat'] = coordLat
-    print('bef', params)
+    global params
+    p = params.copy()
+    p['dato'] = dato
+    p['fecha'] = fecha
+    p['coordLon'] = coordlon
+    p['coordLat'] = coordLat
 
-    output, _ = predecirQCPrecipitation(params)
+    p['umbral'] = umbral
+    p['sizeMax'] = sizeMax
+    print('bef', p)
+
+    output, _ = predecirQCPrecipitation(p)
 
     return output
 

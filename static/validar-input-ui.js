@@ -6,6 +6,11 @@ $(function () {
         var fecha = $('#fecha_input').val();
         var dato = $('#dato_input').val();
 
+        var umbral = $('#umbral-input').val();
+        var sizeMax = $('#sizememory-input').val();
+
+
+
         $.ajax({
             url: '/validar-UI-data',
             type: 'POST',
@@ -13,7 +18,9 @@ $(function () {
                 longitud: longitud,
                 latitud: latitud,
                 fecha: fecha,
-                dato: dato
+                dato: dato,
+                umbral: umbral,
+                sizeMax : sizeMax
             }),
             contentType: 'application/json',
             dataType: 'json',
@@ -21,7 +28,7 @@ $(function () {
                 if (data.success) {
                     // Los datos del formulario son válidos, hacer algo con ellos
                     var newUrl = '/predecir-UI-data?dato=' + dato + '&fecha=' +
-                        fecha + '&lon=' + longitud + '&lat=' + latitud;
+                        fecha + '&lon=' + longitud  + '&lat=' + latitud + '&umbral=' + umbral+ '&sizeMax=' + sizeMax;
                     window.location.href = newUrl;
                 } else {
                     // Los datos del formulario no son válidos, mostrar mensajes de error

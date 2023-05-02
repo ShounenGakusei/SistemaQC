@@ -18,7 +18,6 @@ def getAuxiliarParams(path_base,lon,lat, extras, errors):
 
         extras['alt'] = data['ALT']
         extras['umb1'] = data['Umbral1']
-        print(extras)
         return True
 
     except Exception as e:

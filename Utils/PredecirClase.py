@@ -33,9 +33,19 @@ def evaluarDato(path_base, params, modelo):
     # Obtenemos la matriz de la imagen procesada
     imagenMatriz, erroresImagen = getImages(path_base, params)
 
+    # Revisamos errores de obtencion
     if erroresImagen:
         errors['imagen'] = erroresImagen
+        errors['valido'] = False
         print('Error al leer las iamgenes')
+        return 0, errors
+
+    # TODO  Cmbiar shape fijo a parametros ...
+    # Revisamos erroers de recorte
+    if imagenMatriz.shape != (6,24,24,3):
+        errors['imagen'] = [f'La imagen (canal-tiempo-largo-ancho) tiene la forma ({imagenMatriz.shape}) cuando se espera (6,24,24,3)']
+        errors['valido'] = False
+        print('Error al recortar las iamgenes')
         return 0, errors
 
 

@@ -89,12 +89,14 @@ class Model():
         if len(predicciones) == 0:
             errores.append(f'Error al intentar predecir la clasificacion para el valor de precipitacion con el modelo')
 
+        # TODO - Aqui se define lso umbrales, revisar para umbrales M y C
         for p in predicciones:
-            if p > self.params['umbral']:
+            if p > extras['umbral']: #p > self.params['umbral']:
                 conforme = conforme + 1
-            elif p < (1-self.params['umbral']):
-                malo = malo + 1
+            #elif p < (1-extras['umbral']):
+            #    malo = malo + 1
             else:
-                nc = nc +1
+                #nc = nc +1
+                malo = malo +1
 
         return predicciones, nc, malo, conforme, errores
