@@ -1,10 +1,12 @@
 # Busca el valor X en el array, devuelve su posicion
 import os
+import re
 import traceback
 from netCDF4 import Dataset
 import numpy as np
 
 from Utils.DescargarImagen import downloadImageGOES
+from Utils.GestinarLogs import create_get_actual_log_dir, write_on_file
 from Utils.GraficarImagen import dibujarMapa
 from Utils.ValidarParametros import findImagesFiles
 import os, shutil
@@ -79,8 +81,10 @@ def get_dir_size(path='.'):
                 total += get_dir_size(entry.path)
     return total
 
-def deleteFilesDir(path='.'):
+def deleteFilesDir(path='.', pattern = '.*'):
     for filename in os.listdir(path):
+        if not re.match(pattern, filename):
+            continue
         file_path = os.path.join(path, filename)
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -110,10 +114,15 @@ def getImages(path_base, params):
             return -1, errors
 
         downLoad = True
+
+        log_file = create_get_actual_log_dir(path_base)
+        write_on_file(log_file, f'({params["ID"]}) Descargando imagenes ({params["fecha"]}) ...')
         fileName, errorDownload = downloadImageGOES(path_base, params)
         if errorDownload:
+            write_on_file(log_file, f'({params["ID"]}) Errores en descarga ({params["fecha"]}) ... {str(errorDownload)}')
             errors.append(errorDownload)
             return -1, errors
+        write_on_file(log_file, f'({params["ID"]}) Descarga finalizada ({params["fecha"]}) ...')
 
     # Se verificara si existe el archivo, caso contrario se borrara
     else:
@@ -122,10 +131,15 @@ def getImages(path_base, params):
         if not fileName:
             #errors.append(errorFindFile)
             downLoad = True
+
+            log_file = create_get_actual_log_dir(path_base)
+            write_on_file(log_file, f'({params["ID"]}) Descargando imagenes ({params["fecha"]}) ...')
             fileName, errorDownload = downloadImageGOES(path_base, params)
             if errorDownload:
+                write_on_file(log_file, f'({params["ID"]}) Errores en descarga ({params["fecha"]}) ... {str(errorDownload)}')
                 errors.append(errorDownload)
                 return -1, errors
+            write_on_file(log_file, f'({params["ID"]}) Descarga finalizada ({params["fecha"]}) ...')
 
 
     # Recortamos las imagenes y las combinamos
@@ -135,10 +149,14 @@ def getImages(path_base, params):
             return mergedImages, errors
         # Si no se ha ocurrido error y no se ha intentado descargar las iamgenes, se intentara descargarlos
         elif not downLoad:
+            log_file = create_get_actual_log_dir(path_base)
+            write_on_file(log_file, f'({params["ID"]}) Descargando imagenes ({params["fecha"]}) ...')
             fileName, errorDownload = downloadImageGOES(path_base, params)
             if errorDownload:
+                write_on_file(log_file, f'({params["ID"]}) Errores en descarga ({params["fecha"]}) ... {str(errorDownload)}')
                 errors.append(errorDownload)
                 return -1, errors
+            write_on_file(log_file, f'({params["ID"]}) Descarga finalizada ({params["fecha"]}) ...')
         else:
             return -1, errors
 

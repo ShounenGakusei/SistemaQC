@@ -11,6 +11,7 @@ from pyresample import bilinear
 from netCDF4 import Dataset
 import numpy as np
 
+from Utils.GestinarLogs import create_get_actual_log_dir, write_on_file
 from Utils.ValidarParametros import converGoesDate
 
 
@@ -112,8 +113,6 @@ def downloadImageGOES(path_base, p):
     Inicio
     """
 
-
-
     # Inicializamos variables de descarga
     filename = f'{path_base}/Imagenes/{p["fecha"]}.nc'
     try:
@@ -129,6 +128,7 @@ def downloadImageGOES(path_base, p):
 
     fechaIni = converGoesDate(p['fecha'], mm=-(10 * len(p['tiempos'])))
     fechaFin = converGoesDate(p['fecha'], mm=10)
+
 
     LonCen = None
     for c in p['canales']:
@@ -163,6 +163,7 @@ def downloadImageGOES(path_base, p):
             if errorSave:
                 errors.append(errorSave)
                 return -1, errors
+
 
     print("Time taken: %.2fs" % (time.time() - start_time))
     return filename, errors

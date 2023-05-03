@@ -1,3 +1,4 @@
+import time
 import traceback
 
 from flask import Flask, request, render_template, jsonify
@@ -5,6 +6,7 @@ from flask import Flask, request, render_template, jsonify
 
 # from Tests.unit_tests import TestParametros
 from Utils.DefaultParams import getDefaultParams
+from Utils.GestinarLogs import create_get_actual_log_dir, write_on_file, find_log_file
 from Utils.Model import Model
 from Utils.ObtenerAuxiliares import getElevation, getAuxiliarParams
 from Utils.ObtenerImagen import get_dir_size, deleteFilesDir
@@ -63,6 +65,12 @@ def unitTest():
 
 
 def predecirQCPrecipitation(params_prediction):
+    params_prediction['ID'] = int(time.time())
+
+    log_file = create_get_actual_log_dir(path_base)
+    write_on_file(log_file, f'({params_prediction["ID"]}) Iniciando nueva prediccion ...')
+    write_on_file(log_file, f'({params_prediction["ID"]}) Params:  {str(params_prediction)}')
+
 
     deleteFilesDir(path=f'{path_base}/dlImages/')
     # Verificamos el tamaño de la carpeta
@@ -80,16 +88,20 @@ def predecirQCPrecipitation(params_prediction):
     extras['umbral'] = params_prediction['umbral']
 
     malos = conformes = nc = 0
+    predicciones = [0]
+
     if errors['valido'] and axuiliarValid:
         predicciones, nc, malos, conformes, errorModel = usarModelos(imagenMatriz, params_prediction['dato'], modelosBase,
                                                                      extras=extras)
 
         if errorModel:
             errors['modelo'] = errorModel
+            errors['valido'] = False
             print('Error al leer el modelo')
 
     errores_output = {}
     mensaje = ''
+
     if (malos + conformes + nc) == 0:
         pred_text = 'NC'
         for k, v in errors.items():
@@ -115,6 +127,10 @@ def predecirQCPrecipitation(params_prediction):
               'mensaje' : mensaje, 'valido' : errors['valido'], 'confianza' : round(predicciones[0]*100,2)
               }
 
+    if not errors['valido']:
+        write_on_file(log_file, f'({params_prediction["ID"]})  Errores: {str(errors)}')
+
+    write_on_file(log_file, f'({params_prediction["ID"]})  Prediccion finalizada con exito')
     return output, imagenMatriz
 
 
@@ -122,6 +138,16 @@ def predecirQCPrecipitation(params_prediction):
 def getHome():
     return render_template('index.html', params=params)
 
+@app.route("/logs")
+def getLogs():
+    file_name = find_log_file(path_base, '20230502')
+    if file_name:
+        with open(file_name) as f:
+            lines = f.readlines()
+    else:
+        lines = []
+
+    return render_template('view_logs.html', lines=lines)
 
 @app.route('/validar-UI-data', methods=['POST'])
 def validarDatosUI():
