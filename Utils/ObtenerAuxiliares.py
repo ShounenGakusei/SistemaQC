@@ -6,16 +6,18 @@ import pandas as pd
 def getAuxiliarParams(path_base,lon,lat, extras, errors):
 
     stations = pd.read_csv(f'{path_base}/stations_data.csv')
+    print(f'Estaciones: {path_base}/stations_data.csv')
     try:
-        dfTemp = stations[(abs(stations['LON'] - lon) < 0.001) & ((stations['LAT'] - lat) < 0.001)]
+        dfTemp = stations[(abs(stations['LON'] - lon) < 0.0001) & ((stations['LAT'] - lat) < 0.0001)]
         if not dfTemp.empty:
             data = dfTemp.iloc[0]
         else: # Buscamos el mas cercano
             dfTemp['difLon'] = abs(dfTemp['LON'] - lon)
             dfTemp['difLat'] = abs(dfTemp['LAT'] - lat)
             dfTemp['dif'] = dfTemp['difLon'] + dfTemp['difLat']
-            data = dfTemp.sort_values('dif', ascending=True).iloc[0]
+            data = dfTemp.sort_values('dif', ascending=True).head(1)
 
+        print('DataEstacion:' , data)
         extras['alt'] = data['ALT']
         extras['umb1'] = data['Umbral1']
         return True
