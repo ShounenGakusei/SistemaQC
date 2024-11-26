@@ -42,7 +42,7 @@ def evaluarDato(path_base, params, modelo):
 
     # TODO  Cmbiar shape fijo a parametros ...
     # Revisamos erroers de recorte
-    if imagenMatriz.shape != (6,24,24,3):
+    if imagenMatriz.shape != (3,10,10,3):
         errors['imagen'] = [f'La imagen (canal-tiempo-largo-ancho) tiene la forma ({imagenMatriz.shape}) cuando se espera (6,24,24,3)']
         errors['valido'] = False
         print('Error al recortar las iamgenes')

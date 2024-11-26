@@ -76,10 +76,11 @@ class Model():
                 prediction = modelo.predict({inputLayers[0]: np.full((1, imagen.shape[0], imagen.shape[1],
                                                                           imagen.shape[2], imagen.shape[3]),
                                                                          imagen),
-                                             inputLayers[2]: np.full((1,), dato),
-                                             inputLayers[3]: np.full((1,), float(extras['alt'])),
-                                             inputLayers[1]: np.full((1,), float(extras['umb1']))
+                                             inputLayers[1]: np.full((1,), dato), # 2
+                                             inputLayers[3]: np.full((1,), float(extras['alt'])), #3
+                                             inputLayers[2]: np.full((1,), float(extras['umb1'])) # 1
                                              }, verbose=0)
+                print('Prediccion: ', prediction)
                 predicciones.append(prediction[0,0])
 
             except Exception:
@@ -91,7 +92,7 @@ class Model():
 
         # TODO - Aqui se define lso umbrales, revisar para umbrales M y C
         for p in predicciones:
-            if p > extras['umbral']: #p > self.params['umbral']:
+            if p > float(extras['umbral']): #p > self.params['umbral']:
                 conforme = conforme + 1
             #elif p < (1-extras['umbral']):
             #    malo = malo + 1

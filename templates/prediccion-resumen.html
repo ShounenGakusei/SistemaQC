@@ -11,7 +11,7 @@
 </head>
 <body>
 
-{% if output.valido %}
+{% if output.Status %}
     <div class="row align-items-center text-center">
         <h1 class="col-12"> Control de calidad de precipitacion (Resumen) </h1>
 
@@ -25,7 +25,7 @@
             <div class="card-resumen">
                 <div class="card-body row">
                     <div class="circle-with-text col-6" style="background-color: {{ output.color }};">
-                        {{ output.prediction }}
+                        {{ output.Flag }}
                     </div>
 
                     <div class="col-6">
@@ -84,7 +84,7 @@
                                 <div class="progress-bar" role="progressbar" aria-label="Example with label"
                                      style="width: {{ output.confianza }}%;"
                                      aria-valuenow="{{ output.confianza }}" aria-valuemin="0"
-                                     aria-valuemax="100">{{ output.confianza }}%
+                                     aria-valuemax="100">{{ output.Probability }}%
                                 </div>
                             </div>
                         </div>

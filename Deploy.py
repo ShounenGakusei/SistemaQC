@@ -37,11 +37,11 @@ try:
     # params['coordLon'] = -80.39788
     # params['coordLat'] = -4.48047
     params['canales'] = ['07', '08', '13']
-    params['tiempos'] = ['00', '50', '40', '30', '20', '10']
-    params['margen'] = 24
+    params['tiempos'] =  ['00', '50', '40', '30', '20', '10']  # ['00', '30', '10']  #
+    params['margen'] = 8 # 10  # 24
     params['dibujar'] = False
     params['canalDibujar'] = '13'
-    #params['sizeMax'] = 300 # en MB
+    # params['sizeMax'] = 300 # en MB
     params["hard_save"] = False
 
 except Exception:
@@ -68,30 +68,33 @@ def predecirQCPrecipitation(params_prediction):
     params_prediction['ID'] = int(time.time())
 
     log_file = create_get_actual_log_dir(path_base)
-    write_on_file(log_file, f'({params_prediction["ID"]}) Iniciando nueva prediccion ...')
-    write_on_file(log_file, f'({params_prediction["ID"]}) Params:  {str(params_prediction)}')
-
+    #write_on_file(log_file, f'({params_prediction["ID"]}) Iniciando nueva prediccion ...')
+    write_on_file(log_file, f'({params_prediction["ID"]}) Params::  {str(params_prediction)}')
 
     deleteFilesDir(path=f'{path_base}/dlImages/')
     # Verificamos el tamaño de la carpeta
     sizeDir = get_dir_size(path=f'{path_base}/Imagenes/')
     print(f'Tamaño en dir Imagenes: {sizeDir}')
-    if sizeDir > (float(params_prediction['sizeMax']) * 1024*1024):
+    if sizeDir > (float(params_prediction['sizeMax']) * 1024 * 1024):
         print('Procediendo a vaciar dir Imagenes...')
         deleteFilesDir(path=f'{path_base}/Imagenes/')
 
-    imagenMatriz, errors = evaluarDato(path_base, params_prediction, modelosBase)
-
     extras = {}
+    errors =  {}
     # extras['alt'] = getElevation(path_base,params['coordlon'],params['coordLat'], errors)
-    axuiliarValid = getAuxiliarParams(path_base, float(params_prediction['coordLon']), float(params_prediction['coordLat']), extras, errors)
+    axuiliarValid = getAuxiliarParams(path_base, params_prediction, extras, errors)
     extras['umbral'] = params_prediction['umbral']
+
+    imagenMatriz, errors_dato = evaluarDato(path_base, params_prediction, modelosBase)
+    errors = {**errors,**errors_dato}
+
 
     malos = conformes = nc = 0
     predicciones = [0]
 
     if errors['valido'] and axuiliarValid:
-        predicciones, nc, malos, conformes, errorModel = usarModelos(imagenMatriz, params_prediction['dato'], modelosBase,
+        predicciones, nc, malos, conformes, errorModel = usarModelos(imagenMatriz, params_prediction['dato'],
+                                                                     modelosBase,
                                                                      extras=extras)
 
         if errorModel:
@@ -118,25 +121,49 @@ def predecirQCPrecipitation(params_prediction):
         pred_text = 'NC'
         mensaje = f'Precision: {(predicciones[0]) * 100:.3f}% - Umbral: {params_prediction["umbral"]}'  # f'Umbral:{params["umbral"]} - NC:{nc} - C:{conformes} - M:{malos}'
 
-    output = {'prediction': pred_text, 'errores': errores_output, 'parametros': {'Dato': params_prediction['dato'],
-                                                                          'Fecha': params_prediction['fecha'],
-                                                                          'Longitud': params_prediction['coordLon'],
-                                                                          'Latitud': params_prediction['coordLat'],
-                                                                          'altitud' : extras['alt'],
-                                                                          'per90' : extras['umb1']},
-              'mensaje' : mensaje, 'valido' : errors['valido'], 'confianza' : round(predicciones[0]*100,2)
+    output = {'Flag': pred_text, 'Message': errores_output, 'parametros': {'Dato': params_prediction['dato'],
+                                                                                 'Fecha': params_prediction['fecha'],
+                                                                                 'Longitud': params_prediction[
+                                                                                 'coordLon'],
+                                                                                 'Latitud': params_prediction[
+                                                                                     'coordLat'],
+                                                                                 'altitud': extras['alt'],
+                                                                                 'per90': extras['umb1']},
+               'Status': errors['valido'], 'Probability': round(predicciones[0] * 100, 2)
               }
 
     if not errors['valido']:
-        write_on_file(log_file, f'({params_prediction["ID"]})  Errores: {str(errors)}')
+        write_on_file(log_file, f'({params_prediction["ID"]})  Errores:: {str(errores_output)}')
 
-    write_on_file(log_file, f'({params_prediction["ID"]})  Prediccion finalizada con exito')
+    file_result = {'Flag' : pred_text, 'Probability' : round(predicciones[0] * 100, 2)}
+    write_on_file(log_file, f'({params_prediction["ID"]}) Resultado:: {str(file_result)}')
     return output, imagenMatriz
 
 
 @app.route("/")
 def getHome():
     return render_template('index.html', params=params)
+
+
+@app.route("/downloadImages/<period>")
+def getPeriodImagen(period):
+    logs = {}
+    global params
+    p = params.copy()
+    p['dato'] = '1.0'
+    p['coordLon'] = '-80.39788'
+    p['coordLat'] = '-4.48047'
+    p['umbral'] = '0.51'
+    p['sizeMax'] = '10000'
+    p['codigo'] = ''
+
+    for j in range(13,30,1):
+        for i in range(24):
+            p['fecha'] = f'{period}-{j:02d}-{i:02d}-00'
+            output, _ = predecirQCPrecipitation(p)
+            logs[p['fecha']] = output
+    return logs
+
 
 @app.route("/logs")
 def getLogs():
@@ -149,6 +176,7 @@ def getLogs():
 
     return render_template('view_logs.html', lines=lines)
 
+
 @app.route('/validar-UI-data', methods=['POST'])
 def validarDatosUI():
     data = request.get_json()
@@ -158,8 +186,7 @@ def validarDatosUI():
     err['fecha'] = data['fecha'] + '-00'
     err['coordLon'] = data['longitud']
     err['coordLat'] = data['latitud']
-
-
+    err['codigo'] = data['codigo']
     err['umbral'] = data['umbral']
     err['sizeMax'] = data['sizeMax']
 
@@ -179,37 +206,36 @@ def predecirDatosUI():
     p['fecha'] = request.args.get('fecha', type=str) + '-00'
     p['coordLon'] = request.args.get('lon', type=str)
     p['coordLat'] = request.args.get('lat', type=str)
-
+    p['codigo'] = request.args.get('codigo', default='X47E0D438', type=str)
     p['umbral'] = request.args.get('umbral', type=str)
     p['sizeMax'] = request.args.get('sizeMax', type=str)
-
 
     output, imagenArr = predecirQCPrecipitation(p)
 
     plot_div = None
 
-    if output['valido']:
+    if output['Status']:
         if type(imagenArr) == np.ndarray:
             imagenArr = np.transpose(imagenArr, (0, 3, 1, 2))
 
-
-
         fig = px.imshow(imagenArr, animation_frame=0, facet_col=1, binary_string=True, labels={'facet_col': 'CANAL'})
-        #fig.update_layout(title='Imagenes satelitales (C13 - C07 - C08)', height=600)
+        # fig.update_layout(title='Imagenes satelitales (C13 - C07 - C08)', height=600)
 
         plot_div = fig.to_html(full_html=False)
 
-
-    colores = {'NC' : 'grey', 'C': 'green' , 'M': 'yellow'}
-    if output['valido']:
-        output['color'] = colores[output['prediction']]
-    return render_template('prediccion-resumen.html', plot_div=plot_div , output=output)
+    colores = {'NC': 'grey', 'C': 'green', 'M': 'yellow'}
+    if output['Status']:
+        output['color'] = colores[output['Flag']]
+    return render_template('prediccion-resumen.html', plot_div=plot_div, output=output)
 
 
 @app.route("/predecir")
 def get():
     dato = request.args.get('dato', default='*', type=str)
     fecha = request.args.get('fecha', default='2022-02-01-07', type=str)
+
+    codigo = request.args.get('codigo', default='X47E0D438', type=str)
+
     coordlon = request.args.get('lon', default='-80.39788', type=str)
     coordLat = request.args.get('lat', default='-4.48047', type=str)
 
@@ -225,9 +251,10 @@ def get():
     p = params.copy()
     p['dato'] = dato
     p['fecha'] = fecha
+    p['codigo'] = codigo
+
     p['coordLon'] = coordlon
     p['coordLat'] = coordLat
-
     p['umbral'] = umbral
     p['sizeMax'] = sizeMax
     print('bef', p)

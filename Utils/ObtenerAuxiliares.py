@@ -3,10 +3,34 @@ import urllib
 import traceback
 import pandas as pd
 
-def getAuxiliarParams(path_base,lon,lat, extras, errors):
+def getAuxiliarParams(path_base,params, extras, errors):
+
+
+    codigo = params['codigo']
+    if not codigo:
+        lon = float(params['coordLon'])
+        lat = float(params['coordLat'])
 
     stations = pd.read_csv(f'{path_base}/stations_data.csv')
     print(f'Estaciones: {path_base}/stations_data.csv')
+    # Si se ha dado el codigo, colocamos defrente la Lon, Lat y Altitud
+    if codigo:
+        try:
+            dfTemp = stations[stations['CODE']==codigo]
+            if not dfTemp.empty:
+                data = dfTemp.iloc[0]
+                extras['alt'] = data['ALT']
+                extras['umb1'] = data['Umbral1']
+                params['coordLon'] = float(data['LON'])
+                params['coordLat'] = float(data['LAT'])
+                return True
+
+        except Exception as e:
+            traceback.print_exc()
+            errors['auxVar'] = [f'ERROR AL INTENTAR ENCONTRAR LAS VARIABLES AUXILIARES POR CODIGO {str(e)}']
+            return False
+
+    # Buscamos Lon, lat para hallar Altitud
     try:
         dfTemp = stations[(abs(stations['LON'] - lon) < 0.0001) & ((stations['LAT'] - lat) < 0.0001)]
         if not dfTemp.empty:

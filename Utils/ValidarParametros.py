@@ -35,7 +35,7 @@ def converGoesDate(fecha, hh=0, mm=0, reversa=False):
 
 # Verifica que todos lso datos sean validos, devuelve la lsita de errores
 def comprobarDatos(p):
-    errors = {'valido': True, 'dato': [], 'coordLon': [], 'coordLat': [], 'fecha': [], 'imagen': [] , 'sizeMax' : [], 'umbral' : []}
+    errors = {'valido': True, 'dato': [], 'codigo' : [],'coordLon': [], 'coordLat': [], 'fecha': [], 'imagen': [] , 'sizeMax' : [], 'umbral' : []}
 
     # Pruebas de dato
     if not p['dato']:
@@ -51,31 +51,42 @@ def comprobarDatos(p):
         errors['valido'] = False
         pass
 
+    # Pruebas de codigo
+    if not p['codigo']:
+        if not (p['coordLon'] and p['coordLat']):
+            errors['codigo'].append('El codigo no puede ser nulo si Longitud y latutitus es nulo.')
+            errors['valido'] = False
+
     # Pruebas de Longitud
     if not p['coordLon']:
-        errors['coordLon'].append('La longitud no puede ser nula')
-        errors['valido'] = False
-    try:
-        p['coordLon'] = float(p['coordLon'])
-        if (p['coordLon'] > 66.45) or (p['coordLon'] < -83.54):
-            errors['coordLon'].append('La longitud debe estar entre 66.45 y -83.54 (Territorio Peruano)')
+        if not p['codigo']:
+            errors['coordLon'].append('La longitud no puede ser nula')
             errors['valido'] = False
-    except:
-        errors['coordLon'].append('No se pudo convertir la longitud a numero real')
-        errors['valido'] = False
-        pass
+    else:
+        try:
+            p['coordLon'] = float(p['coordLon'])
+            if (p['coordLon'] > 66.45) or (p['coordLon'] < -83.54):
+                errors['coordLon'].append('La longitud debe estar entre 66.45 y -83.54 (Territorio Peruano)')
+                errors['valido'] = False
+        except:
+            errors['coordLon'].append('No se pudo convertir la longitud a numero real')
+            errors['valido'] = False
+            pass
+
     # Pruebas de latitud
     if not p['coordLat']:
-        errors['coordLat'].append('La latitud no puede ser nula')
-        errors['valido'] = False
-    try:
-        p['coordLat'] = float(p['coordLat'])
-        if (p['coordLat'] > 1.38) or (p['coordLat'] < -20.25):
-            errors['coordLat'].append('La latitud debe estar entre 1.38 y -20.25 (Territorio Peruano)')
+        if not p['codigo']:
+            errors['coordLat'].append('La latitud no puede ser nula')
             errors['valido'] = False
-    except:
-        errors['coordLat'].append('No se pudo convertir la latitud a numero real')
-        errors['valido'] = False
+    else:
+        try:
+            p['coordLat'] = float(p['coordLat'])
+            if (p['coordLat'] > 1.38) or (p['coordLat'] < -20.25):
+                errors['coordLat'].append('La latitud debe estar entre 1.38 y -20.25 (Territorio Peruano)')
+                errors['valido'] = False
+        except:
+            errors['coordLat'].append('No se pudo convertir la latitud a numero real')
+            errors['valido'] = False
 
     # Pruebas de fecha
     if not p['fecha']:

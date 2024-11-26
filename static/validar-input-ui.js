@@ -5,6 +5,7 @@ $(function () {
         var latitud = $('#latitud_input').val();
         var fecha = $('#fecha_input').val();
         var dato = $('#dato_input').val();
+        var codigo = $('#codigo_input').val();
 
         var umbral = $('#umbral-input').val();
         var sizeMax = $('#sizememory-input').val();
@@ -19,6 +20,7 @@ $(function () {
                 latitud: latitud,
                 fecha: fecha,
                 dato: dato,
+                codigo: codigo,
                 umbral: umbral,
                 sizeMax : sizeMax
             }),
@@ -27,7 +29,7 @@ $(function () {
             success: function (data) {
                 if (data.success) {
                     // Los datos del formulario son válidos, hacer algo con ellos
-                    var newUrl = '/predecir-UI-data?dato=' + dato + '&fecha=' +
+                    var newUrl = '/predecir-UI-data?dato=' + dato + '&codigo=' +  codigo + '&fecha=' +
                         fecha + '&lon=' + longitud  + '&lat=' + latitud + '&umbral=' + umbral+ '&sizeMax=' + sizeMax;
                     window.location.href = newUrl;
                 } else {

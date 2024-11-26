@@ -8,6 +8,9 @@
 # Icon must end with two \r
 Icon
 
+/logs/*.txt
+/Imagenes/*.nc
+/dlImages/*.nc
 
 # Thumbnails
 ._*
