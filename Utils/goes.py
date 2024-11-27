@@ -176,12 +176,11 @@ class GOESImageProcessor:
         # Calcular el tamaño total de la carpeta
         total_size = 0
         files = []
-        for root, dirs, filenames in os.walk(folder_path):
-            for filename in filenames:
-                if filename.endswith('.nc'):
-                    file_path = os.path.join(root, filename)
-                    files.append((file_path, os.path.getmtime(file_path)))
-                    total_size += os.path.getsize(file_path)
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            if os.path.isfile(file_path) and filename.endswith('.nc'):  # Solo archivos .nc
+                files.append((file_path, os.path.getmtime(file_path)))  # Añadir la fecha de modificación
+                total_size += os.path.getsize(file_path)  # Sumar el tamaño del archivo
 
         # Si el tamaño total excede el límite
         logger_qc.info(f"Espacio actual ocupado {len(files)} :  {total_size} de {max_size} en {folder_path}")

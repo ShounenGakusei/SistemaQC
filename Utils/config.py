@@ -12,9 +12,9 @@ class Config:
     TIEMPOS = ["00", "50", "40", "30", "20", "10"]
     
     PORT = 5000
-    MIN_IMAGE_SIZE = 20  * 1024 # 20 MB
-    MAX_TEMP_FOLDER_SIZE = 1  * 1024 * 1024 # 1GB
-    MAX_IMAGE_FOLDER_SIZE = 200 * 1024 * 1024 # 200MB
+    MIN_IMAGE_SIZE = (28 * 1024 * 1024) # 20 MB
+    MAX_TEMP_FOLDER_SIZE = 3 * (480 * 1024 * 1024) # 480mb pro hora
+    MAX_IMAGE_FOLDER_SIZE = 12 * (28 * 1024 * 1024) # 28MB por hora
     DOMAIN = [-88.0, -63.0, -25.0, 5.0]
     UMBRAL = 0.5
 
