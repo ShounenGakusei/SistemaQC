@@ -3,10 +3,7 @@ import numpy as np
 import tensorflow as tf
 from utils.config import Config
 from utils.goes import GOESImageProcessor, schedule_download
-from utils.logs import setup_logging
-from utils.model import QCModel
 from flask_apscheduler import APScheduler
-from datetime import datetime, timedelta
 import plotly.express as px
 from utils.predict import Predict_Model
 
@@ -47,6 +44,7 @@ def predict_ui():
     
 @app.route('/predict/<fecha>/<codigo>/<dato>', methods=['GET'])
 def predict(fecha, codigo, dato):
+    print('INICIO DE PREDICCION...')
     output_data, input_data  = Predict_Model(model).get_prediction( fecha, codigo, dato)
 
     return jsonify(output_data)
@@ -76,5 +74,5 @@ def goes_download_schedule():
 if __name__ == '__main__':
     scheduler.init_app(app)
     scheduler.start()
-    setup_logging()
+    #setup_logging()
     app.run(debug=True,port=Config.PORT, threaded=False, host='0.0.0.0')

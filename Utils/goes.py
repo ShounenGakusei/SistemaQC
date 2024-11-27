@@ -4,15 +4,14 @@ import os
 import time
 from netCDF4 import Dataset
 from utils.config import Config
+from utils.logs import logger_qc
 import GOES
 from datetime import datetime, timedelta
 import pyproj
 from pyresample import utils
 from pyresample.geometry import SwathDefinition
 from pyresample import bilinear
-import logging
 import re
-import requests
 
 def schedule_download():
     """
@@ -30,19 +29,10 @@ class GOESImageProcessor:
     def __init__(self):
         self.errors = []  # Lista para almacenar errores
         self.success = True  # Indicador de éxito
-        self.logger = self._setup_logger()
 
-    def _setup_logger(self):
-        logger = logging.getLogger("GOESImageProcessor")
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
-        return logger
-    
     def validate_images_goes(self, filename):
         if not os.path.exists(filename):
-            self.logger.info("Validacion Imagen (False): No existe el archivo")
+            logger_qc.info("Validacion Imagen (False): No existe el archivo")
             return False
         
         valido = True
@@ -53,7 +43,7 @@ class GOESImageProcessor:
         print('Tamañ del archvo',file_size)
         if (datetime.now() - creation_time) > timedelta(minutes=10):
             if file_size < Config.MIN_IMAGE_SIZE:
-                self.logger.info("Validacion Imagen (False): El archivo es menor a 20mb y ya paso 10min desde su creacion")
+                logger_qc.info("Validacion Imagen (False): El archivo es menor a 20mb y ya paso 10min desde su creacion")
                 valido = False
             
         """
@@ -74,25 +64,25 @@ class GOESImageProcessor:
                         # Comprobar si existe el grupo y la variable CMI para el canal y tiempo
                         group_name = f'{c}-{t}'
                         if group_name not in ds.groups:
-                            self.logger.info(f"Validacion Imagen (False): Archivo no tiene la esctructura esperada para {c}-{t}")
+                            logger_qc.info(f"Validacion Imagen (False): Archivo no tiene la esctructura esperada para {c}-{t}")
                             valido = False
                             break
                         
                         group = ds.groups[group_name]
                         if 'CMI' not in group.variables:
-                            self.logger.info(f"Validacion Imagen (False): Archivo no tiene CMI en {c}-{t}")
+                            logger_qc.info(f"Validacion Imagen (False): Archivo no tiene CMI en {c}-{t}")
                             valido =  False
                             break
 
                         cmi_data = group.variables['CMI'][:].data
                         if np.isnan(cmi_data).all():
-                            self.logger.info(f"Validacion Imagen (False): Archivo solo tiene nulos en {c}-{t}")
+                            logger_qc.info(f"Validacion Imagen (False): Archivo solo tiene nulos en {c}-{t}")
                             valido =  False
                             break
 
         except Exception as e:
             # Si hay un error al abrir o leer el archivo, significa que no es válido
-            self.logger.info(f"Validacion Imagen (False): El archivo no tiene la estrucutra esperada {str(e)}")
+            logger_qc.info(f"Validacion Imagen (False): El archivo no tiene la estrucutra esperada {str(e)}")
             valido = False
 
         if not valido:
@@ -103,7 +93,7 @@ class GOESImageProcessor:
 
     def save_nc_file(self, filename, i, c, CMI, LonsCen, LatsCen):
         try:
-            self.logger.info(f"Guardando datos en {filename}, grupo {c}-{i}")
+            logger_qc.info(f"Guardando datos en {filename}, grupo {c}-{i}")
             f = Dataset(filename, 'a', format='NETCDF4')
             tmpGroup = f.createGroup(f'{c}-{i}')
 
@@ -120,11 +110,11 @@ class GOESImageProcessor:
         except Exception as e:
             self.errors.append(f"Error en save_nc_file ({c}-{i}): {e}")
             self.success = False
-            self.logger.error(f"Error al guardar archivo NetCDF: {e}")
+            logger_qc.error(f"Error al guardar archivo NetCDF: {e}")
 
     def reproject(self, CMI, LonCen, LatCen, LonCenCyl, LatCenCyl):
         try:
-            self.logger.info("Reproyectando datos")
+            logger_qc.info("Reproyectando datos")
             Prj = pyproj.Proj('+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=6378.137 +b=6378.137 +units=km')
             AreaID = 'cyl'
             AreaName = 'cyl'
@@ -144,7 +134,7 @@ class GOESImageProcessor:
         except Exception as e:
             self.errors.append(f"Error en reprojection: {e}")
             self.success = False
-            self.logger.error(f"Error al reproyectar: {e}")
+            logger_qc.error(f"Error al reproyectar: {e}")
             return None
 
     def conver_goes_date(self, fecha, hh=5, mm=0, reversa=False):
@@ -156,7 +146,7 @@ class GOESImageProcessor:
 
     def save_coordinates(self, filename, LonCen, LatCen):
         try:
-            self.logger.info(f"Guardando coordenadas en {filename}")
+            logger_qc.info(f"Guardando coordenadas en {filename}")
             f = Dataset(filename, 'a', format='NETCDF4')
             tmpGroup = f.createGroup('coordenadas')
             tmpGroup.createDimension('longitude', LonCen.shape[1])
@@ -171,7 +161,7 @@ class GOESImageProcessor:
         except Exception as e:
             self.errors.append(f"Error en save_coordinates: {e}")
             self.success = False
-            self.logger.error(f"No se pudo agregar las coordenadas: {e}")
+            logger_qc.error(f"No se pudo agregar las coordenadas: {e}")
 
 
     def clean_folder_if_exceeds_limit(self, folder_path,max_size, files_to_remove=12):
@@ -194,7 +184,7 @@ class GOESImageProcessor:
                     total_size += os.path.getsize(file_path)
 
         # Si el tamaño total excede el límite
-        self.logger.info(f"Espacio actual ocupado {len(files)} :  {total_size} de {max_size} en {file_path}")
+        logger_qc.info(f"Espacio actual ocupado {len(files)} :  {total_size} de {max_size} en {folder_path}")
 
         if total_size > max_size:
             # Ordenar los archivos por fecha de modificación (antiguos primero)
@@ -218,7 +208,7 @@ class GOESImageProcessor:
             
         try:
             start_time = time.time()
-            self.logger.info(f"--------Iniciando descarga de imagen GOES para {fecha}")
+            logger_qc.info(f"--------Iniciando descarga de imagen GOES para {fecha}")
             domain = Config.DOMAIN
 
             # Coordenadas iniciales
@@ -277,7 +267,7 @@ class GOESImageProcessor:
                         os.remove(filename)
                         return ''
 
-            self.logger.info(f"Tiempo de procesamiento: {time.time() - start_time:.2f}s")
+            logger_qc.info(f"Tiempo de procesamiento: {time.time() - start_time:.2f}s")
             return filename
         except Exception as e:
             traceback.print_exc()

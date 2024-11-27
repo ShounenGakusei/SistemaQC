@@ -1,6 +1,7 @@
 import traceback
 import pandas as pd
 import tensorflow as tf
+from utils.logs import logger_qc
 from utils.config import Config
 import logging
 from netCDF4 import Dataset
@@ -24,19 +25,10 @@ class Predict_Model():
     def __init__(self, model):
         self.errors = []  # Lista para almacenar errores
         self.success = True  # Indicador de éxito
-        self.logger = self._setup_logger()
         self.model = model
         self._get_station_data()
         self._get_model_params()
 
-    def _setup_logger(self):
-        logger = logging.getLogger("GOESImageProcessor")
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
-        return logger
-    
     def _get_imagen_data(self, filename, lon, lat):
         if not self.success:
             return {}
@@ -67,7 +59,7 @@ class Predict_Model():
         except Exception as e:
             ds.close()
             traceback.print_exc()
-            self.logger.error(f"Error al obtener imgaen data: {e}")
+            logger_qc.error(f"Error al obtener imgaen data: {e}")
             self.errors.append(f"Error al obtener imgaen data: {e}")
             self.success = False
             return [0]
@@ -95,7 +87,7 @@ class Predict_Model():
         except Exception as e:
             self.errors.append(f"Error en abrir el archivo de estaciones: {Config.STATION_PATH}-{str(e)}")
             self.success = False
-            self.logger.error(f"Error en abrir el archivo de estaciones: {Config.STATION_PATH}-{str(e)}")
+            logger_qc.error(f"Error en abrir el archivo de estaciones: {Config.STATION_PATH}-{str(e)}")
             return {}
         
 
@@ -108,7 +100,7 @@ class Predict_Model():
         except KeyError:
             self.errors.append(f"No se encontró la estacion en la base {self.station}")
             self.success = False
-            self.logger.error(f"No se encontró la estacion en la base {self.station}")
+            logger_qc.error(f"No se encontró la estacion en la base {self.station}")
             return {}
         
         result =  {
@@ -124,7 +116,7 @@ class Predict_Model():
         if not cGoes.success:
             self.errors.append(f"Error en obtener imagen GOES para fecha {self.fecha}: {str(cGoes.errors)}")
             self.success = False
-            self.logger.error(f"Error en obtener imagen GOES para fecha {self.fecha}: {str(cGoes.errors)}")
+            logger_qc.error(f"Error en obtener imagen GOES para fecha {self.fecha}: {str(cGoes.errors)}")
         result['imagen_file'] = self.filename
         return result
 
@@ -141,13 +133,13 @@ class Predict_Model():
             traceback.print_exc()
             self.errors.append(f"Error en prediccion del modelo: {str(e)}")
             self.success = False
-            self.logger.error(f"Error en prediccion del modelo: {str(e)}")
+            logger_qc.error(f"Error en prediccion del modelo: {str(e)}")
             return -1 , 'NC'       
         pred_value = round(float(prediction[0]),4)
         return pred_value, 'C' if pred_value >= Config.UMBRAL else 'M'
     
     def get_prediction(self, fecha, station, value):
-        self.logger.info(f"Iniciando prediccion :  {fecha} - {station} - {value}")
+        logger_qc.info(f"Iniciando prediccion :  {fecha} - {station} - {value}")
         response = {}
         self.fecha = fecha
         self.station = station
