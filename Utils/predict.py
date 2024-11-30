@@ -93,7 +93,7 @@ class Predict_Model():
 
     def _get_model_data(self):        
         if not self.success:
-            return 
+            return {}
         
         try:
             data_station = self.stations[self.station]
@@ -121,6 +121,9 @@ class Predict_Model():
         return result
 
     def _get_model_result(self, data):
+        if not self.success:
+            return -1, 'NC'
+    
         try:
             prediction = self.model.predict({self.inputLayers[0]: np.full((1, data['imagen'].shape[0], data['imagen'].shape[1],
                                                     data['imagen'].shape[2], data['imagen'].shape[3]),
@@ -144,27 +147,44 @@ class Predict_Model():
         self.fecha = fecha
         self.station = station
         self.value = value
+
+        self.filename = ''
         
+        try:
+            self.value = float(value)
+            if self.value < 0:
+                self.errors.append(f'El valor de precipitacin debe ser positivo: {self.value}')    
+                self.success = False
+        except ValueError:
+            self.errors.append(f'El dato de precipitacion no se peude convertir a float: {self.value}')
+            self.success = False
+
 
         # Validamos la data
         input_model = self._get_model_data()
-        input_model['imagen'] = self._get_imagen_data(self.filename, input_model['coordLon'], input_model['coordLat'])
+        if self.success:
+            input_model['imagen'] = self._get_imagen_data(self.filename, input_model['coordLon'], input_model['coordLat'])
         
         prediction, pred_text = self._get_model_result(input_model)
 
-
-        response = {'Flag': pred_text, 'Message': self.errors, 
-                              'parametros': {'Dato': self.value,
-                                            'Fecha': self.fecha,
-                                            'Longitud': input_model['coordLon'],
-                                            'Latitud': input_model['coordLat'],
-                                            'altitud': input_model['alt'],
-                                            'per90': input_model['umb1'],},
-               'Status': self.success, 'Probability': prediction*100
-              }
-        
-        colores = {'NC': 'grey', 'C': 'green', 'M': 'yellow'}
-        response['color'] = colores[response['Flag']]
+        if self.success:
+            response = {'Flag': pred_text, 'Message': self.errors, 
+                                'parametros': {'Dato': self.value,
+                                                'Fecha': self.fecha,
+                                                'station' : self.station,
+                                                'Longitud': input_model['coordLon'],
+                                                'Latitud': input_model['coordLat'],
+                                                'altitud': input_model['alt'],
+                                                'per90': input_model['umb1'],},
+                'Status': self.success, 'Probability': prediction*100
+                }
+            
+            colores = {'NC': 'grey', 'C': 'green', 'M': 'yellow'}
+            response['color'] = colores[response['Flag']]
+        else:
+            response = {'Flag' : 'NC', 'Message' : self.errors, 'parametros' : {'Dato': self.value,
+                                                'Fecha': self.fecha,'station' : self.station}
+                                                , 'Status' : False, 'Probability' : 0}
 
         return response ,input_model
 

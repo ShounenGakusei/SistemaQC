@@ -105,10 +105,9 @@
         </tr>
         </thead>
         <tbody>
-        {% for campo, valor in output.errores.items() %}
+        {% for campo in output.Message %}
             <tr>
-                <td>{{ campo }}</td>
-                <td>{{ valor }}</td>
+                <td>{{ campo }}</td>                
             </tr>
         {% endfor %}
         </tbody>

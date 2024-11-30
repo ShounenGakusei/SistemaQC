@@ -28,19 +28,22 @@ def home():
 def predict_ui():
     if request.method == 'GET':
         return render_template('index.html')
-
-    fecha = request.args.get('fecha', default='2022-02-01-07-00', type=str)
-    codigo = request.args.get('codigo', default='X47E0D438', type=str)
-    dato = request.args.get('dato', default='1.2', type=str)
+ 
+    fecha = request.form.get('fecha', default='default', type=str)
+    codigo = request.form.get('codigo', default='default', type=str)
+    dato = request.form.get('dato', default='-1', type=str)
 
     #data = model.predecir_unitario(fecha, codigo, dato)
     output_data, input_data  = Predict_Model(model).get_prediction( fecha, codigo, dato)
-
-    if type(input_data['imagen']) == np.ndarray:
+    print(output_data)
+    if output_data['Status'] and (type(input_data['imagen']) == np.ndarray):
         input_data['imagen'] = np.transpose(input_data['imagen'], (0, 3, 1, 2))
         fig = px.imshow(input_data['imagen'], animation_frame=0, facet_col=1, binary_string=True, labels={'facet_col': 'CANAL'})
         plot_div = fig.to_html(full_html=False)
         return render_template('prediccion-resumen.html', plot_div=plot_div, output=output_data)
+    else:
+        return render_template('prediccion-resumen.html', output=output_data)
+
     
 @app.route('/predict/<fecha>/<codigo>/<dato>', methods=['GET'])
 def predict(fecha, codigo, dato):

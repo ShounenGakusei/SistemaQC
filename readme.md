@@ -3,7 +3,11 @@
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 # Sistema de QC precipitaciones con DeepLearning  (Version 1.0.0)
-Proyecto para realizar QC de precipitacion
+Proyecto para realizar QC de precipitacion.
+
+> El proyecto tiene un proceso asincrono que se ejecuta cada 10 min. Este proceso descarga (en caso no se tenga aún) las imagenes satelitales de la ultima hora. 
+
+A pesar que el proyecto esta estructurado para analizar las preciptiaciones mas recientes, tambien se peude probar con fechas antiguas, sin embargo la primera vez demorara en descargar las imagenes satelitales, estas imagen se guardan en una carpeta de manera temporal, en caso se necesite especificar el espacio maximo a utilizar en el almacenamiento temporal, los parametros están en utils/config.py.
 
 ## 1. Esctructura del proyecto  
 **La estructura base será:**  
@@ -68,3 +72,7 @@ Existen 5 niveles de Logging **info,debug,warning,error,critical**. Todas las vi
 - Al final de la peticion el middleware hará logging (info) con la metada generada de la peticion.
 - En caso de excepciones no mapeadas en el request, el middleware capturará la expcecion y generará un logging (critical), para así evitar que el backend deje de funcionar.
 
+## 6. Pruebas
+Se han desarrolado las pruebas unitarias y las pruebas de estrés con exito, se muestra los resultados de las pruebas de estres realizado en locust
+
+![Pruebas de estres realizo en locust](static/media/test_charts.png)
